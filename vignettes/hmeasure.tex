@@ -5,8 +5,9 @@
 \def\ROC{\text{ROC}}
 %\VignetteIndexEntry{hmeasure}
 
+\usepackage{Sweave}
 \begin{document}
-\SweaveOpts{concordance=TRUE}
+\input{hmeasure-concordance}
 
 \title{Measuring classification performance: the \texttt{hmeasure} package.}
 
@@ -65,36 +66,60 @@ The simplest performance metrics rely on comparing the classifier's predicted cl
 \end{tabular}
 \end{center}
 A scalar summary of the above is often needed, for instance, to enable comparisons across classifiers. In machine learning and statistics, the most widely used such summary  is the \emph{Error Rate} (ER), which is simply the total misclassification count divided by the number of examples, i.e., $\text{ER} = \frac{\text{FN}+\text{FP}}{n} = \frac{\text{FN}+\text{FP}}{\text{FN}+\text{FP}+\text{TN}+\text{TP}}$. There are however several others which are widely used in other domains, as we now proceed to illustrate. Consider the Pima dataset, which we split into a training and a test dataset: 
-<<>>=
-library(MASS); library(class); data(Pima.te); 
-library(hmeasure)
-n <- dim(Pima.te)[1]; ntrain <- floor(2*n/3); ntest <- n-ntrain
-pima.train <- Pima.te[seq(1,n,3),]
-pima.test <- Pima.te[-seq(1,n,3),]
-@
+\begin{Schunk}
+\begin{Sinput}
+> library(MASS); library(class); data(Pima.te); 
+> library(hmeasure)
+> n <- dim(Pima.te)[1]; ntrain <- floor(2*n/3); ntest <- n-ntrain
+> pima.train <- Pima.te[seq(1,n,3),]
+> pima.test <- Pima.te[-seq(1,n,3),]
+\end{Sinput}
+\end{Schunk}
 This stores the training and test data in a matrix format, where the last, $8$th column, called ``type'', is the class label, given as a factor with two levels:
-<<>>=
-true.labels <- pima.test[,8]
-str(true.labels)
-@
+\begin{Schunk}
+\begin{Sinput}
+> true.labels <- pima.test[,8]
+> str(true.labels)
+\end{Sinput}
+\begin{Soutput}
+ Factor w/ 2 levels "No","Yes": 1 1 2 2 1 1 1 1 1 1 ...
+\end{Soutput}
+\end{Schunk}
 We then consider the Linear Discriminant Analysis (LDA) classifier implemented in $R$ as part of the \texttt{class} package. We first train the classifier using the training data: 
-<<>>=
-lda.pima <- lda(formula=type~., data=pima.train)
-@
+\begin{Schunk}
+\begin{Sinput}
+> lda.pima <- lda(formula=type~., data=pima.train)
+\end{Sinput}
+\end{Schunk}
 We then apply it to obtain predicted classes for the test dataset. We relabel to 0/1:
-<<>>=
-out.lda = predict(lda.pima, newdata=pima.test)
-true.labels.01 <- relabel(true.labels)
-lda.labels.01 <- relabel(out.lda$class)
-@
+\begin{Schunk}
+\begin{Sinput}
+> out.lda = predict(lda.pima, newdata=pima.test)
+> true.labels.01 <- relabel(true.labels)
+> lda.labels.01 <- relabel(out.lda$class)
+\end{Sinput}
+\end{Schunk}
 We may obtain the confusion matrix for these predictions using the function \verb+misclassCounts+, which is part of the \texttt{hmeasure} package:
-<<>>=
-lda.counts <- misclassCounts(true.labels.01, lda.labels.01); lda.counts$conf.matrix
-@
+\begin{Schunk}
+\begin{Sinput}
+> lda.counts <- misclassCounts(true.labels.01, lda.labels.01); lda.counts$conf.matrix
+\end{Sinput}
+\begin{Soutput}
+         pred.1 pred.0
+actual.1     50     25
+actual.0     24    122
+\end{Soutput}
+\end{Schunk}
 The function additionally computes several other misclassification-based statistics:
-<<>>=
-print(lda.counts$metrics,digits=3)
-@
+\begin{Schunk}
+\begin{Sinput}
+> print(lda.counts$metrics,digits=3)
+\end{Sinput}
+\begin{Soutput}
+     ER  Sens  Spec Precision Recall   TPR   FPR     F Youden
+1 0.222 0.667 0.836     0.676  0.667 0.667 0.164 0.671  0.502
+\end{Soutput}
+\end{Schunk}
 ER is the Error Rate described earlier. The True Positive Rate (TPR) and the False Positive Rate (FPR) constitute an alternative representation of the confusion matrix, and are given respectively by the ratio of TPs to the total number of positive examples, and the ratio of FPs to the total number of negative examples, $\text{TPR} = \text{TP}/(\text{TP}+\text{FN}), \text{FPR} = \text{FP}/(\text{TN}+\text{FP})$. An analogous pair of summary statistics is Sensitivity (Sens, same as TPR) versus Specificity (Spec, given by $1-\text{FPR}$), and yet another such pair is Precision (TP divided by the total number of predicted positives, $\text{TP}/(\text{TP} + \text{FP})$) versus Recall (same as Sensitivity, or TPR). Finally, the $F$ measure and the Youden index are scalar measures that attempt to take a more balanced view of the two different objectives than ER does. The former is given by the harmonic mean of Precision and Recall, and the latter by $\text{Sensitivity}+\text{Specificity}-1$.
 
 Note that \verb+misclassCounts()+ is flexible with regards to the data type of the predicted class label. The default input is a numeric array with levels $0$ and $1$, but it also accepts numeric, logicals, and factors, with the following conventions:
@@ -104,13 +129,23 @@ Note that \verb+misclassCounts()+ is flexible with regards to the data type of t
 \item factor levels: alphabetically, e.g., ``\textbf{m}ale'' $\rightarrow$ ``1'', ``\textbf{f}emale'' $\rightarrow$ ``0'', 
 \end{itemize}
 The latter convention ensures that  \verb+"Yes"/"No"+ are replaced with $1$s and $0$s respectively: 
-<<>>=
-relabel(c("Yes","No","No"))
-@
+\begin{Schunk}
+\begin{Sinput}
+> relabel(c("Yes","No","No"))
+\end{Sinput}
+\begin{Soutput}
+[1] 1 0 0
+\end{Soutput}
+\end{Schunk}
 An exception to this alphabetical ordering convention is made for the labels \verb+"case/non-case"+ which \verb+relabel()+ will map to \verb+"1/0"+ respectively, rather than to \verb+"0/1"+:
-<<>>=
-relabel(c("case","noncase","case"))
-@
+\begin{Schunk}
+\begin{Sinput}
+> relabel(c("case","noncase","case"))
+\end{Sinput}
+\begin{Soutput}
+[1] 1 0 1
+\end{Soutput}
+\end{Schunk}
 This is to ensure agreement with the usage of these terms in medicine, where a ``case'' represents the presence of a disease, and hence most naturally corresponds to a positive label. In all cases, \verb+relabel()+ outputs the following warning message for the user to inspect and ensure the relabelling agrees with their intuition about the meaning of the labels:
 \begin{verbatim}
 Class labels have been switched from (No,Yes) to (0,1)
@@ -130,36 +165,69 @@ The above statistics are based exclusively on a set of predicted labels. However
 The threshold allows the end user to `tune' a classifier in order to trade-off FPs for FNs, or vice versa. An extreme example is where one classifies all objects as positive ($t=-\infty$) regardless of their description, enabling one to never ``miss a case'' (FN=0), at the cost of a large number of ``false alarms'' (high FP). Conversely, for $t=\infty$, no objects will ever be classified as positive, forcing $\text{FP=0}$ at the cost of incurring a maximum number of FNs.
 
 Such classifiers are known as \emph{scoring} classifiers, and they form the prevalent type in the supervised classification literature. A particular special case thereof are \emph{probabilistic classifiers}, where the score is an estimate of the posterior probability of class $1$ membership, $s(\mathbf{x}) = \hat{p}(\text{`Yes'} \mid \mathbf{x})$. The \texttt{lda} function is an implementation of a probabilistic classifier, and reports the scores in its output:
-<<>>=
-out.lda$posterior[1:3,]
-@
+\begin{Schunk}
+\begin{Sinput}
+> out.lda$posterior[1:3,]
+\end{Sinput}
+\begin{Soutput}
+         No        Yes
+2 0.9780078 0.02199222
+3 0.9738716 0.02612837
+5 0.3824495 0.61755047
+\end{Soutput}
+\end{Schunk}
 Here the score may be found in the second column, which corresponds to the probability of class 1. The LDA classifier outputs the class label with maximum probability. In the framework above, this corresponds to a threshold of $0.5$:
-<<>>=
-scores.lda <- out.lda$posterior[,2]; 
-all((scores.lda > 0.5) == lda.labels.01)
-@
+\begin{Schunk}
+\begin{Sinput}
+> scores.lda <- out.lda$posterior[,2]; 
+> all((scores.lda > 0.5) == lda.labels.01)
+\end{Sinput}
+\begin{Soutput}
+[1] TRUE
+\end{Soutput}
+\end{Schunk}
 We may alter the choice of threshold to assess the effect this has on the trade-off between FPs and FNs. Setting $t = 0.3$ produces an improvement in FNs (from $11$ to $3$) at the expense of a deterioration in FPs (from $7$ to $12$), or, as more commonly reported, an improvement in sensitivity (from $0.667$ to $0.909$), for a deterioration in specificity (from $0.91$ to $0.846$):
-<<>>=
-lda.counts.T03 <- misclassCounts(scores.lda>0.3, true.labels.01)
-lda.counts.T03$conf.matrix
-lda.counts.T03$metrics[c('Sens','Spec')]
-@
+\begin{Schunk}
+\begin{Sinput}
+> lda.counts.T03 <- misclassCounts(scores.lda>0.3, true.labels.01)
+> lda.counts.T03$conf.matrix
+\end{Sinput}
+\begin{Soutput}
+         pred.1 pred.0
+actual.1     64     10
+actual.0     36    111
+\end{Soutput}
+\begin{Sinput}
+> lda.counts.T03$metrics[c('Sens','Spec')]
+\end{Sinput}
+\begin{Soutput}
+       Sens     Spec
+1 0.8648649 0.755102
+\end{Soutput}
+\end{Schunk}
 \subsection{ROC curves}
 The above discussion establishes that the performance of any given scoring classifier in terms of misclassification counts (and hence also in terms of ER) \emph{varies} with $t$, and consequently, to evaluate such a classifier, or compare two or more such classifiers, one needs to either appropriately fix $t$, or somehow consider a suitable range of its values. Several solutions have been produced in the literature to address this difficulty (see \cite{krzanowski2009} for a review). Some of these propose a certain setting for $t$ and then employ misclassification counts as the measure of performance. For instance, as explained earlier, what is commonly reported as `Error Rate', is in fact just $\text{ER}(\tilde{t})$ where $\tilde{t}$ is whatever default value is employed by the classifier implementation in question. More sophisticated approaches attempt to take a balanced view across several, or even all possible settings for $t$. We review both types of metrics in this section.
 
 The most common graphical representation of this trade-off is the Receiver Operating Characteristic (ROC) curve, which is a plot of the Sensitivity (i.e., TPR) against  1- Specificity (i.e., FPR), as the threshold is varied from $-\infty$ to $\infty$. Computing the ROC curve only requires the scores, and does not actually involve iterating over different values of $t$ (see \cite{hand2009} for details). This is implemented in the \verb+HMeasure+ function, and displayed by calling \verb+plotROC+ on its output. To make the discussion more interesting we consider a second classifier, the $k$-Nearest-Neighbours ($k$-NN) classifier, available in the \verb+class+ package:
-<<>>=
-class.knn <- knn(train=pima.train[,-8], test=pima.test[,-8],
-  cl=pima.train$type, k=9, prob=TRUE, use.all=TRUE)
-scores.knn <- attr(class.knn,"prob")
-scores.knn[class.knn=="No"] <- 1-scores.knn[class.knn=="No"] 
-@
+\begin{Schunk}
+\begin{Sinput}
+> class.knn <- knn(train=pima.train[,-8], test=pima.test[,-8],
++   cl=pima.train$type, k=9, prob=TRUE, use.all=TRUE)
+> scores.knn <- attr(class.knn,"prob")
+> scores.knn[class.knn=="No"] <- 1-scores.knn[class.knn=="No"] 
+\end{Sinput}
+\end{Schunk}
 The last line of code is necessary as $k$-NN utilises a different convention for scores, outputing by default the score of the most probable class, rather than the score of class $1$. The \verb+HMeasure+ function takes as input the set of true labels (following the same conventions as \verb+misclassCounts()+, see Section \ref{sec:misclasscounts}), as well as a data frame of scores, where each column is a classifier:
-<<>>=
-scores <- data.frame(LDA=scores.lda,kNN=scores.knn)
-results <- HMeasure(true.labels,scores)
-class(results)
-@
+\begin{Schunk}
+\begin{Sinput}
+> scores <- data.frame(LDA=scores.lda,kNN=scores.knn)
+> results <- HMeasure(true.labels,scores)
+> class(results)
+\end{Sinput}
+\begin{Soutput}
+[1] "hmeasure"
+\end{Soutput}
+\end{Schunk}
 The output is an object of class \verb+hmeasure+, whose main fields are a set of summary metrics including statistics based on misclassification counts (see Section \ref{sec:misclasscounts}), as well as aggregate metrics (see Section \ref{sec:aggregate}). It additionally contains information necessary for plotting purposes. In particular, calling the function \verb+plotROC()+ on an \verb+hmeasure+ object will produce, by default, the ROC curves of the classifiers in question.  Figure \ref{fig:ROC} is an example of this for the LDA and $k$-NN classifiers on the Pima data.
 
 We note in Figure \ref{fig:ROC} that the ROC curve of LDA lies mostly above that of $k$-NN. Had it lied \emph{strictly} above it, then we would have been able to conclude that \emph{for any value of the threshold}, LDA fared better for this dataset in terms of both FNs and FPs than $k$-NN. This result is also called \emph{strict dominance}, and it is the strongest possible result of a classifier comparison. For instance, the ideal classifier would produce a ROC curve lying above all possbile ROC curves, and consisting in the line segments $(0,0)\rightarrow (0,1) \rightarrow (1,1)$, as the $(0,1)$ point represents perfect classification. As things stand, LDA is seen to fare better than $k$-NN for most, but not all values of the threshold. The diagonal represents the performance of a trivial classifier, that randomly allocates classes to objects. Although it is possible in practice for a classifier to underperform the trivial classifier, it is customary in such cases to switch the sign of the scores and therefore `flip' the ROC curve about the diagonal to produce a superior classifier. This is done automatically in the \verb+HMeasure+ function, and the following warning is produced: 
@@ -168,9 +236,12 @@ We note in Figure \ref{fig:ROC} that the ROC curve of LDA lies mostly above that
 \end{verbatim}
 \begin{figure}
 \centering
-<<fig=TRUE,echo=TRUE>>=
-plotROC(results)
-@
+\begin{Schunk}
+\begin{Sinput}
+> plotROC(results)
+\end{Sinput}
+\end{Schunk}
+\includegraphics{hmeasure-014}
 \caption{\label{fig:ROC}Code fragment producing an ROC curve for the LDA classifier. Providing the scores as a data frame allows us to name the method in question.}
 \end{figure}
 
@@ -178,9 +249,19 @@ Finally, the dotted lines in Figure \ref{fig:ROC} represent the \emph{convex hul
 
 \subsection{Aggregate measures}\label{sec:aggregate}
 We now turn our attention to aggregate measures, defined as functions of the ROC curve's values, at single or multiple locations. These are compactly reported as follows: 
-<<>>=
-summary(results)
-@
+\begin{Schunk}
+\begin{Sinput}
+> summary(results)
+\end{Sinput}
+\begin{Soutput}
+            H      Gini       AUC      AUCH        KS       MER       MWL
+LDA 0.4802968 0.7304652 0.8652326 0.8816878 0.6335723 0.1990950 0.1632235
+kNN 0.3707186 0.6571980 0.8285990 0.8317705 0.4920941 0.2217195 0.2262443
+    Spec.Sens95 Sens.Spec95
+LDA   0.5306122   0.4189189
+kNN   0.5959751   0.4218147
+\end{Soutput}
+\end{Schunk}
 We define the abbreviations here, and give more detail in the rest of the section: 
 \begin{itemize}
 \item H: the H-measure (see Section \ref{sec:costs})
@@ -195,27 +276,71 @@ We define the abbreviations here, and give more detail in the rest of the sectio
 \end{itemize}
 
 In this section we explain how each of these metrics is computed. Note that overriding the default value of \verb+show.all+ in the \verb+summary()+ method additionally reports the metrics computed by \verb+misclasscounts()+ which we described earlier in Section \ref{sec:misclasscounts}: 
-<<>>=
-summary(results,show.all=TRUE)
-@
+\begin{Schunk}
+\begin{Sinput}
+> summary(results,show.all=TRUE)
+\end{Sinput}
+\begin{Soutput}
+            H      Gini       AUC      AUCH        KS       MER       MWL
+LDA 0.4802968 0.7304652 0.8652326 0.8816878 0.6335723 0.1990950 0.1632235
+kNN 0.3707186 0.6571980 0.8285990 0.8317705 0.4920941 0.2217195 0.2262443
+    Spec.Sens95 Sens.Spec95        ER      Sens     Spec Precision    Recall
+LDA   0.5306122   0.4189189 0.2217195 0.6756757 0.829932 0.6666667 0.6756757
+kNN   0.5959751   0.4218147 0.2262443 0.6621622 0.829932 0.6621622 0.6621622
+          TPR      FPR         F    Youden TP FP  TN FN
+LDA 0.6756757 0.170068 0.6711409 0.5056076 50 25 122 24
+kNN 0.6621622 0.170068 0.6621622 0.4920941 49 25 122 25
+\end{Soutput}
+\end{Schunk}
 These latter metrics all rely on a single pre-specified threshold value. The default value is $t=0.5$, but the user may easily specify a different threshold as follows:
-<<>>=
-HMeasure(true.labels,scores,threshold=0.3)$metrics[c('Sens','Spec')]
-@
+\begin{Schunk}
+\begin{Sinput}
+> HMeasure(true.labels,scores,threshold=0.3)$metrics[c('Sens','Spec')]
+\end{Sinput}
+\begin{Soutput}
+         Sens      Spec
+LDA 0.8648649 0.7551020
+kNN 0.8108108 0.6258503
+\end{Soutput}
+\end{Schunk}
 Separate thresholds per classifier may be provided instead. E.g., the above agrees with
-<<>>=
-HMeasure(true.labels,scores,threshold=c(0.3,0.3))$metrics[c('Sens','Spec')]
-@
+\begin{Schunk}
+\begin{Sinput}
+> HMeasure(true.labels,scores,threshold=c(0.3,0.3))$metrics[c('Sens','Spec')]
+\end{Sinput}
+\begin{Soutput}
+         Sens      Spec
+LDA 0.8648649 0.7551020
+kNN 0.8108108 0.6258503
+\end{Soutput}
+\end{Schunk}
 but not with
-<<>>=
-HMeasure(true.labels,scores,threshold=c(0.5,0.3))$metrics[c('Sens','Spec')]
-@
+\begin{Schunk}
+\begin{Sinput}
+> HMeasure(true.labels,scores,threshold=c(0.5,0.3))$metrics[c('Sens','Spec')]
+\end{Sinput}
+\begin{Soutput}
+         Sens      Spec
+LDA 0.6756757 0.8299320
+kNN 0.8108108 0.6258503
+\end{Soutput}
+\end{Schunk}
 It should be noted that this feature of user-specified thresholds is introduced for reasons of completeness, transparency and experimentation only. It is generally not advised to directly select values for the threshold -- this is discussed in Section \ref{sec:costs}. To relieve the user entirely of having to worry about whether the default choice of threshold $\tilde{t}=0.5$ is suitable, we additionally report the \emph{Minimum Error Rate} (MER), as an alternative to  $\text{ER} = \text{ER}(\tilde{t})$, which corresponds to the value of $t$ that achieves the \emph{minimum} $\text{ER}(t)$ over the test dataset. If $s(x)$ is a probability then the minimum error rate is generally achieved when $t=0.5$. See Section \ref{sec:costs} for further details on this measure.
 
 Error rate considers FPs as important as FNs. This may not be suitable in certain application areas, such as medical diagnosis, or fraud detection. A popular alternative in such domains is to fix specificity (resp., sensitivity) at a desired level, often set at 0.95, and only report the achievable sensitivity (resp. specificity) at that level. These measures can be read off the ROC curve directly, and are also conveniently reported as \verb+Sens.Spec95+ and \verb+Spec.Sens95+ respectively in the \verb+Hmeasure+ output, for a default setting of $0.95$. The user may easily specify one or more such levels as follows:
-<<>>=
-summary(HMeasure(true.labels,scores,level=c(0.95,0.99)))
-@
+\begin{Schunk}
+\begin{Sinput}
+> summary(HMeasure(true.labels,scores,level=c(0.95,0.99)))
+\end{Sinput}
+\begin{Soutput}
+            H      Gini       AUC      AUCH        KS       MER       MWL
+LDA 0.4802968 0.7304652 0.8652326 0.8816878 0.6335723 0.1990950 0.1632235
+kNN 0.3707186 0.6571980 0.8285990 0.8317705 0.4920941 0.2217195 0.2262443
+    Spec.Sens95 Spec.Sens99 Sens.Spec95 Sens.Spec99
+LDA   0.5306122  0.18367347   0.4189189  0.02702703
+kNN   0.5959751  0.04068027   0.4218147  0.31324324
+\end{Soutput}
+\end{Schunk}
 
 An alternative metric that seeks to jointly consider specificity and sensitivity is the Kolmogorov-Smirnoff (KS) statistic, which corresponds to the maximum value their sum takes as the threshold is varied. This also attains an intuitive graphical interpretation as the maximum vertical distance between the ROC and the diagonal. 
 
@@ -237,9 +362,12 @@ AUC = \int F_0(t) d F_1(t) = \int F_0(t) f_1(t) dt
 The rightmost equality assumes the distribution is differentiable, which will not hold for an empirical distribution. To simplify the exposition, for the remainder of this discussion we assume that $F_0$ and $F_1$ are the true distributions.
 
 \begin{figure}
-<<fig=TRUE>>=
-plotROC(results,which=4)
-@
+\begin{Schunk}
+\begin{Sinput}
+> plotROC(results,which=4)
+\end{Sinput}
+\end{Schunk}
+\includegraphics{hmeasure-021}
 \caption{\label{fig:scores}Empirical scoring densities for the LDA and $k$-NN classifiers on the Pima dataset.}
 \end{figure}
 \subsection{Costs and the $H$-measure}\label{sec:costs}
@@ -276,36 +404,62 @@ Although for the $H$ measure the distribution $w(c)$ is fixed -- in the sense th
 In many problems the class sizes are extremely unbalanced. In such cases, it would be rare that one would want to treat the two classes symmetrically. Instead, one would probably want to treat misclassifications of the smaller class as more serious than those of the larger class, since if they are treated as of equal severity then very little loss would be made by assigning everything to the larger class. This asymmetry can be seen to underlie the \textit{KS} statistic, which is a simple linear transformation of the MWL when $c=\pi_1$ and $1-c = \pi_0$. This latter choice precisely has the effect of turning a missed instance of the rare class into a graver type of error. The proposed default prior for the $H$ measure relies on the same intuition, but rather than committing to a single fixed value of $c$, it considers the entire range of $c \in [0,1]$, but places  maximum weight on the choice $c=\pi_1$. In mathematical terms, $w(c)$ is a Beta distribution whose mode is at $c=\pi_1 \approx 0.3$ for the Pima dataset. We may plot the prior by the \verb+plotROC+ command (see Figure \ref{fig:H.cost.weights}(a)). Note that the \verb+hmeasure+ package internally employs an alternative parameterisation of the cost, known as the \emph{severity ratio}, which considers the ratio between the two costs, $\text{SR} = \frac{c}{1-c}$, so that $\text{SR} = 1$ represents symmetric costs. The default severity ratio may of course be changed to a user-specified setting.
 
 Returning to our example, we observe that, using the default $c = \pi_1$, we obtain:
-<<>>=
-results$metrics[c('H','KS','ER','FP','FN')]
-@
+\begin{Schunk}
+\begin{Sinput}
+> results$metrics[c('H','KS','ER','FP','FN')]
+\end{Sinput}
+\begin{Soutput}
+            H        KS        ER FP FN
+LDA 0.4802968 0.6335723 0.2217195 25 24
+kNN 0.3707186 0.4920941 0.2262443 25 25
+\end{Soutput}
+\end{Schunk}
 The two classifiers have very similar error rates, as they differ on a single error. However, this error is of the graver type, since the positive (disease) class is less prevalent:
-<<>>=
-summary(pima.test[,8])
-@
+\begin{Schunk}
+\begin{Sinput}
+> summary(pima.test[,8])
+\end{Sinput}
+\begin{Soutput}
+ No Yes 
+147  74 
+\end{Soutput}
+\end{Schunk}
 This is reflected in the KS statistic and the $H$ measure which both clearly favour the LDA classifier. An interesting point of comparison is the behaviour of the $H$ measure for $c=0.5$:
-<<>>=
-results.SR1 <- HMeasure(
-  true.labels, data.frame(LDA=scores.lda,kNN=scores.knn),severity.ratio=1)
-results.SR1$metrics[c('H','KS','ER','FP','FN')]
-@
+\begin{Schunk}
+\begin{Sinput}
+> results.SR1 <- HMeasure(
++   true.labels, data.frame(LDA=scores.lda,kNN=scores.knn),severity.ratio=1)
+> results.SR1$metrics[c('H','KS','ER','FP','FN')]
+\end{Sinput}
+\begin{Soutput}
+            H        KS        ER FP FN
+LDA 0.4401067 0.6335723 0.2217195 25 24
+kNN 0.3463211 0.4920941 0.2262443 25 25
+\end{Soutput}
+\end{Schunk}
 Despite the fact that both the $H$ measure and the ER encode the assumption of symmetric costs, the $H$ measure continues to clearly favour the LDA to the $k$-NN classifier. It is immediately evident from Figure \ref{fig:ROC} that indeed LDA is equivalent to $k$-NN in the early part of the ROC, but clearly outperforms it in the latter part. Presumably, the choice of threshold corresponding to $c=0.5$ happens to be in a region where the two perform equally well. Nevertheless, the uncertainty of the $H$-measure allows it to cast a `wider net' (see Figure \ref{fig:H.cost.weights}(b)), taking into account parts of the ROC space either side of this specific choice of threshold, and hence correctly concludes that LDA should be preferred in this instance.
 \begin{figure}
 \centering
-<<fig=TRUE>>=
-par(mfrow=c(2,1))
-plotROC(results,which=2)
-plotROC(results.SR1,which=2)
-@
+\begin{Schunk}
+\begin{Sinput}
+> par(mfrow=c(2,1))
+> plotROC(results,which=2)
+> plotROC(results.SR1,which=2)
+\end{Sinput}
+\end{Schunk}
+\includegraphics{hmeasure-025}
 \caption{\label{fig:H.cost.weights}The prior employed by the $H$ measure for $c=\pi_1$ (left) and $c=0.5$ (right).}
 \end{figure}
 To conclude this discussion, we now use the \verb+plotROC+ function to graphically display the incoherency of the AUC when interpreted in terms of costs. Recall that the AUC averages over thresholds under the assumption that all values of the TPR (sensitivity) are equally likely. This uniform prior over the sensitivity induces, for each dataset and classifier, a prior over costs, which we display in Figure \ref{fig:AUC}. The prior can be seen to differ across the two classifiers \cite{hand2009}. This is incoherent under the cost interpretation. 
 \begin{figure}
 \centering
 \begin{minipage}{0.60\textwidth}
-<<fig=TRUE>>=
-plotROC(results,which=3)
-@
+\begin{Schunk}
+\begin{Sinput}
+> plotROC(results,which=3)
+\end{Sinput}
+\end{Schunk}
+\includegraphics{hmeasure-026}
 \end{minipage}
 \caption{\label{fig:AUC}Cost distribution implicitly employed by the AUC for the $k$-NN and LDA classifier against the Pima dataset.}
 \end{figure}
