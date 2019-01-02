@@ -3,7 +3,7 @@ doc
 # History files
 .Rhistory
 .Rapp.history
-
+.tmp
 # Session Data files
 .RData
 # Example code in package build process
