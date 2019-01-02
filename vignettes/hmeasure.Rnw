@@ -66,7 +66,7 @@ The simplest performance metrics rely on comparing the classifier's predicted cl
 \end{center}
 A scalar summary of the above is often needed, for instance, to enable comparisons across classifiers. In machine learning and statistics, the most widely used such summary  is the \emph{Error Rate} (ER), which is simply the total misclassification count divided by the number of examples, i.e., $\text{ER} = \frac{\text{FN}+\text{FP}}{n} = \frac{\text{FN}+\text{FP}}{\text{FN}+\text{FP}+\text{TN}+\text{TP}}$. There are however several others which are widely used in other domains, as we now proceed to illustrate. Consider the Pima dataset, which we split into a training and a test dataset: 
 <<>>=
-library(MASS); library(class); data(Pima.te); 
+require(MASS); require(class); data(Pima.te); 
 library(hmeasure)
 n <- dim(Pima.te)[1]; ntrain <- floor(2*n/3); ntest <- n-ntrain
 pima.train <- Pima.te[seq(1,n,3),]

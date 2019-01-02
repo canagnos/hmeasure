@@ -1,2 +1,16 @@
+^Meta$
+^doc$
+.Rhistory
+.gitignore
+R/.DS_Store
+.Rproj
+.Rproj.user
+.git$
+vignettes/hmeasure.bbl
+vignettes/hmeasure.blg 
+vignettes/hmeasure.dvi
 ^.*\.Rproj$
 ^\.Rproj\.user$
+cran-comments.md
+notes.txt
+scripts

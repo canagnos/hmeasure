@@ -2,6 +2,11 @@
 ### SINGLE CLASSIFIER FUNCTION DEFINITION ###
 #############################################
 # to keep the code tidy, we implement an internal function for a single classifier
+
+
+
+#' @importFrom stats pbeta dbeta density
+#' @importFrom grDevices chull
 HMeasure.single <- function(y, s, classifier.name=NULL,
                             severity.ratio=severity.ratio,
                             threshold=threshold, level=level	){
@@ -204,8 +209,8 @@ HMeasure.single <- function(y, s, classifier.name=NULL,
 #############################################
 
 
-
-
+#' @export
+#' @importFrom stats complete.cases
 HMeasure <- function(true.class, scores,
                      severity.ratio=NA, threshold=0.5, level=0.95
 ){
@@ -372,8 +377,7 @@ Look.Up.AUC <- function(xcurve,ycurve,x=0){
 
 registerS3method("summary","hmeasure","summary.hmeasure", envir=getNamespace("hmeasure"))
 
-
-
+#' @export
 misclassCounts <- function(predicted.class,true.class){
   
   true.class <- as.array(true.class)

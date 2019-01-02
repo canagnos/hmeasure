@@ -144,13 +144,13 @@ HMeasure <- function(true.class, scores,
     the.criterion <- AUC < 0.5
     if (the.criterion){
       switched <- TRUE      
-      s <- 1-s
+      #s <- 1-s
       out.scores <- Get.Score.Distributions(y,s,n1,n0)
       if (is.null(classifier.name)){
-      warning('ROC curve mostly lying under the diagonal. Switching scores.', domain = NA)
+      #warning('ROC curve mostly lying under the diagonal. Switching scores.', domain = NA)
 	} else {
-      warning(gettextf( 'ROC curve of %s mostly lying under the diagonal. Switching scores.',
-      	classifier.name), domain = NA)
+      #warning(gettextf( 'ROC curve of %s mostly lying under the diagonal. Switching scores.',
+      	#classifier.name), domain = NA)
 	}
     }
     F1 <- out.scores$F1
@@ -540,13 +540,13 @@ plotROC <- function(results, which=1,bw='nrd0'){
     for (count in (1:no.of)){
       
       if (count == 1){
-        plot(to.plot0[[count]], xlim=c(s.min,s.max), col=colorlist[count], lty=4,
-             	main='Smoothed score distributions \n (class 0: dash-dotted, class 1: dashed) ', 
+        plot(to.plot0[[count]], xlim=c(s.min,s.max), col='blue', lty=1,
+             	main='Smoothed score distributions ', 
 		xlab= 'Score ', ylim=c(0,ymax))
       } else {
-        lines(to.plot0[[count]], xlim=c(s.min,s.max), col=colorlist[count], lty=4, ylim=c(0,ymax))
+        lines(to.plot0[[count]], xlim=c(s.min,s.max), col='red', lty=1, ylim=c(0,ymax))
       }
-      lines(to.plot1[[count]], lty=2, col=colorlist[count], ylim=c(0,ymax))
+      lines(to.plot1[[count]], lty=1, col=colorlist[count], ylim=c(0,ymax))
       
       
       # Define legend entry
@@ -556,8 +556,8 @@ plotROC <- function(results, which=1,bw='nrd0'){
         
     }
     # put in legend
-    legend('top', legend=legend.names,
-           lty=legend.lty, col=legend.colors)
+    legend('topright', legend=c('Scores of units without change', 'Scores of units with change'),
+           lty=1, col=c('blue','red'))
 
   }
   

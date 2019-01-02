@@ -8,9 +8,10 @@ Plotting function illustrating the H-measure of classification performance.
 Plots ROC curves, weight distributions according to the H-measure and the AUC, and smoothed scoring distributions.
 }
 \usage{
-plotROC(results, which = 1, bw="nrd0")
+plotROC(results, which = 1, bw = "nrd0", cols = c("red",
+                 "blue", "green", "magenta", "yellow", "forestgreen"),
+                 greyscale = FALSE, lty = c(1))
 }
-%- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{results}{
 An object of class "hmeasure", which will be the output of the "HMeasure" function applied on the scores of one or more classifiers on the same test dataset, and the true class labels of the test dataset. 
@@ -20,6 +21,15 @@ The type of plot to be produced. Option 1 yields the ROC curves and their convex
 } 
   \item{bw}{
 The type of bandwidth to be used for the smoothed scoring distribution plot. See help(density) for more detail on possible settings of the "bw" parameter. We employ the same default setting as 'density()', namely "nrd0". 
+ }
+ \item{cols}{
+  A list of colours to be used in order for the ROC and convex ROC hulls for each classifier. 
+ }
+ \item{greyscale}{
+  A flag which if set to TRUE prints the plot on greyscale, with as much differentiation between classifiers as possible, to support black-and-white journal publications.
+ }
+ \item{lty}{
+  The line type.
  }
 }
 \details{

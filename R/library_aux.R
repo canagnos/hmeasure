@@ -1,3 +1,4 @@
+#' @export
 relabel <- function(labels){
   
   
@@ -7,8 +8,6 @@ relabel <- function(labels){
   if (length(levels(as.factor(labels)))>2){
     stop('More than two classes present, but code can only handle binary classification.')
   }
-  
-  
   
   labels <- as.factor(as.character(labels))
   input.labels <- levels(labels)
@@ -41,3 +40,9 @@ relabel <- function(labels){
   return(labels)
 }
 
+
+release_questions <- function() {
+  c(
+    "Have you updated the bibliography in the vignette?"
+  )
+}

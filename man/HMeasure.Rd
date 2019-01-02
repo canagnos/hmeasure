@@ -71,8 +71,8 @@ plotROC, summary.hmeasure, misclassCounts, relabel
 
 
 # load the data
-library(MASS) 
-library(class) 
+require(MASS) 
+require(class) 
 data(Pima.te) 
 
 # split it into training and test

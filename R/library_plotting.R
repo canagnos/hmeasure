@@ -1,6 +1,6 @@
 
-### PLOT METHOD ###
-
+#' @export
+#' @importFrom graphics legend lines plot
 plotROC <- function(
   results,
   which=1,
