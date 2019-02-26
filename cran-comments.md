@@ -4,7 +4,7 @@
 
 ## Motivation for the patch
 
-Previous release, 1.0, had several NOTEs and WARNINGs, including unregistered S3 methods, a failed vignette build, and unneeded files.
+Previous release, 1.0-1, had empty copyright holder name in LICENSE.
 
 ## R CMD check results
 There were no ERRORs, no WARNINGs, no NOTEs

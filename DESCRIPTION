@@ -1,8 +1,8 @@
 Package: hmeasure
 Type: Package
 Title: The H-Measure and Other Scalar Classification Performance Metrics
-Version: 1.0-1
-Date: 2018-12-30
+Version: 1.0-2
+Date: 2019-02-26
 Author: Christoforos Anagnostopoulos
     <christoforos.anagnostopoulos06@imperial.ac.uk> and David J.
     Hand <d.j.hand@imperial.ac.uk>
